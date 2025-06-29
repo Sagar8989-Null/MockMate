@@ -24,7 +24,7 @@ const MockInterview = () => {
           <div className='personalitycard'><div className="circle"><img src="/Gemini_Generated_Image_r39344r39344r393.png" alt="AI image" /></div></div>
           <div className='personalitycard'><div className="circle"></div></div>
         </div>
-      <ChatInterface/>
+        <ChatInterface />
       </div>
     </div>
   );

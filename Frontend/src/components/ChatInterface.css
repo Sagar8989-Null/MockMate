@@ -1,24 +1,15 @@
 .chat-app {
   width: 100%;
   max-width: 500px;
-  margin: 40px auto;
   border: 1px solid #ccc;
   border-radius: 10px;
   font-family: sans-serif;
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: 100%;
   overflow: hidden;
 }
 
-.chat-header {
-  background-color: #2d7ff9;
-  color: white;
-  padding: 15px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
 
 .chat-messages {
   flex: 1;

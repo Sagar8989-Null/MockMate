@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import './ChatInterface.css';
+import {useSpeech} from "react-text-to-speech"
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [recording, setRecording] = useState(false);
   const messagesEndRef = useRef(null);
+  const { speak } = useSpeech(); 
   const {
     transcript,
     resetTranscript,
@@ -87,11 +89,12 @@ const ChatInterface = () => {
 
   return (
     <div className="chat-app">
-      <div className="chat-header">🎤 AI Chat Assistant</div>
+      {/* <div className="chat-header">🎤 AI Chat Assistant</div> */}
 
       <div className="chat-messages">
         {messages.map(msg => (
           <div key={msg.id} className={`chat-message ${msg.role}`}>
+            {msg.role=='assistant' && speak({text : msg.content})} {/* this line spell the content deliverd by the assistant*/} 
             <div className="chat-bubble">{msg.content}</div>
           </div>
         ))}
