@@ -18,8 +18,6 @@ A comprehensive mock interview platform that helps students practice and improve
 - **Vite** - Fast build tool and development server
 - **React Router DOM** - Client-side routing
 - **React Speech Recognition** - Voice input capabilities
-- **Web Speech API** - Text-to-speech functionality
-- **Axios** - HTTP client for API communication
 
 ### Backend
 - **Node.js** - JavaScript runtime
@@ -181,9 +179,6 @@ MockMate/
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the ISC License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
@@ -202,4 +197,4 @@ If you encounter any issues or have questions, please:
 
 ---
 
-**Made for students, by students** 🎓
+**Made for students, by student** 🎓
