@@ -4,6 +4,8 @@ import './MockInterview.css';
 import ChatInterface from './ChatInterface';
 
 const MockInterview = () => {
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
 
   return (
     <div className="mock-interview">
@@ -21,10 +23,10 @@ const MockInterview = () => {
       </header>
       <div className="SCcontainer">
         <div className="cardcontainer">
-          <div className='personalitycard'><div className="circle"><img src="/Gemini_Generated_Image_r39344r39344r393.png" alt="AI image" /></div></div>
-          <div className='personalitycard'><div className="circle"><div className="face"></div><div className="body"></div></div></div>
+          <div className={`personalitycard${isAISpeaking ? ' speaking' : ''}`}><div className="circle"><img src="/Gemini_Generated_Image_r39344r39344r393.png" alt="AI image" /></div></div>
+          <div className={`personalitycard${isUserSpeaking ? ' speaking' : ''}`}><div className="circle"><div className="face"></div><div className="body"></div></div></div>
         </div>
-        <ChatInterface />
+        <ChatInterface isUserSpeaking={isUserSpeaking} setIsUserSpeaking={setIsUserSpeaking} isAISpeaking={isAISpeaking} setIsAISpeaking={setIsAISpeaking} />
       </div>
     </div>
   );

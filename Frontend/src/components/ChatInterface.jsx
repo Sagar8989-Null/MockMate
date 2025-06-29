@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import './ChatInterface.css';
 
-const ChatInterface = () => {
+const ChatInterface = ({ isUserSpeaking, setIsUserSpeaking, isAISpeaking, setIsAISpeaking }) => {
   const [messages, setMessages] = useState([
     {
       role: "system", content: `
@@ -45,7 +45,7 @@ const ChatInterface = () => {
     const synth = window.speechSynthesis;
     if (!synth) return;
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new window.SpeechSynthesisUtterance(text);
     const voices = synth.getVoices();
 
     const maleVoice = voices.find(voice =>
@@ -55,6 +55,8 @@ const ChatInterface = () => {
     if (maleVoice) {
       utterance.voice = maleVoice;
     }
+    setIsAISpeaking(true);
+    utterance.onend = () => setIsAISpeaking(false);
     synth.speak(utterance);
   };
 
@@ -71,13 +73,12 @@ const ChatInterface = () => {
     }
   },[hasStarted])
 
-
   const startListening = () => {
     resetTranscript();
     setRecording(true);
     setHasStarted(true); 
+    setIsUserSpeaking(true);
     SpeechRecognition.startListening({ continuous: false, language: 'en-IN' });
-    
   };
 
   const getAIResponse = async (updatedMessages) => {
@@ -103,6 +104,7 @@ const ChatInterface = () => {
   const stopListening = async () => {
     SpeechRecognition.stopListening();
     setRecording(false);
+    setIsUserSpeaking(false);
 
     const userMessage = {
       id: Date.now(),

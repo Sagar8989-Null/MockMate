@@ -130,7 +130,10 @@
   margin: 0;
 }
 
-
+.personalitycard.speaking {
+  box-shadow: 0 0 32px 8px #00e0ff, 0 0 8px 2px #fff;
+  transition: box-shadow 0.3s;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
