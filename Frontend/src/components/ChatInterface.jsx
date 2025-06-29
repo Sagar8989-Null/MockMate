@@ -1,13 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import './ChatInterface.css';
-import {useSpeech} from "react-text-to-speech"
 
 const ChatInterface = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      role: "system", content: `
+                                You are an AI interviewer. Conduct a formal interview with the user in a strict and professional tone. Your goal is to evaluate, not to teach.
+                              — Start by asking: "Which field do you want to give the interview in?" Keep all questions concise and relevant.
+                              — Limit the interview to 20 questions total.
+                              — Do not explain topics deeply. If the user's answer is wrong, correct them briefly, then move to the next question.
+                              — If the user asks unrelated or irrelevant questions, refuse to answer and remind them to stay focused on the interview.
+                              — You can express mild disappointment or assertiveness if the user is not being serious,be rude,be savage, feel free to roast user.
+                              — Do NOT repeat instructions or your role again during the conversation.
+                              — Maintain a strong and observant tone, as a human interviewer would.
+                              `}
+  ])
   const [recording, setRecording] = useState(false);
   const messagesEndRef = useRef(null);
-  const { speak } = useSpeech(); 
+  const [hasStarted, setHasStarted] = useState(false);
+
   const {
     transcript,
     resetTranscript,
@@ -29,20 +41,53 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
+  const speakText = (text) => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = synth.getVoices();
+
+    const maleVoice = voices.find(voice =>
+      voice.lang.startsWith('en') && voice.name.toLowerCase().includes('male')
+    );
+
+    if (maleVoice) {
+      utterance.voice = maleVoice;
+    }
+    synth.speak(utterance);
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.role === 'assistant') {
+      speakText(lastMessage.content);
+    }
+  }, [messages]);
+
+  useEffect(()=>{
+    if (hasStarted && recording) {
+      stopListening();
+    }
+  },[hasStarted])
+
+
   const startListening = () => {
     resetTranscript();
     setRecording(true);
+    setHasStarted(true); 
     SpeechRecognition.startListening({ continuous: false, language: 'en-IN' });
+    
   };
 
-  const getAIResponse = async (transcript) => {
+  const getAIResponse = async (updatedMessages) => {
     try {
       const response = await fetch('http://localhost:3000/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ transcript })
+        body: JSON.stringify({ messages: updatedMessages })
       });
 
       const data = await response.json();
@@ -65,13 +110,14 @@ const ChatInterface = () => {
       content: transcript
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    resetTranscript(); // Reset after sending to backend
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    resetTranscript();
 
     // Placeholder for AI response call
     // You should call your backend API here with transcript
     try {
-      const aireply = await getAIResponse(transcript);
+      const aireply = await getAIResponse(updatedMessages);
       console.log("AI REPLY:", aireply); // 🔍 Debugging output
 
       const aiMessage = {
@@ -92,18 +138,31 @@ const ChatInterface = () => {
       {/* <div className="chat-header">🎤 AI Chat Assistant</div> */}
 
       <div className="chat-messages">
-        {messages.map(msg => (
-          <div key={msg.id} className={`chat-message ${msg.role}`}>
-            {msg.role=='assistant' && speak({text : msg.content})} {/* this line spell the content deliverd by the assistant*/} 
-            <div className="chat-bubble">{msg.content}</div>
-          </div>
-        ))}
+        {messages
+          // .filter(msg => msg.role !== 'system') // 👈 Exclude system message
+          .filter((msg, index) => {
+            if (msg.role === 'system') return false;
+        
+            // Find the first user message
+            const firstUserIndex = messages.findIndex(m => m.role === 'user');
+            // Hide only that one
+            if (msg.role === 'user' && index === firstUserIndex) return false;
+        
+            return true;
+          })
+          .map(msg => (
+            <div key={msg.id} className={`chat-message ${msg.role}`}>
+              <div className="chat-bubble">{msg.content}</div>
+            </div>
+          ))}
         <div ref={messagesEndRef} />
       </div>
 
       <div className="chat-controls">
-        <button onClick={startListening} disabled={recording}>Listen</button>
-        <button onClick={stopListening} disabled={!recording}>Stop</button>
+        <button onClick={startListening} disabled={recording}>
+          {hasStarted ? 'Listen' : 'Start'}
+        </button>
+        <button onClick={stopListening} disabled={!recording} style={{display:hasStarted?"block":"none"}} >Stop</button>
       </div>
     </div>
   );

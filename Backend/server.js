@@ -19,18 +19,14 @@ const endpoint = "https://models.github.ai/inference";
 const model = "openai/gpt-4.1";
 
 app.post('/chat', async (req, res) => {
-  const { transcript } = req.body;
-  const userresponse = transcript;
+  const { messages } = req.body;
 
   const client = new OpenAI({ baseURL: endpoint, apiKey: token });
-  console.log(userresponse);
+  console.log("User converstaion : ",messages);
 
   try {
     const response = await client.chat.completions.create({
-      messages: [
-        { role: "system", content: "you are interviewer" },
-        { role: "user", content: userresponse }
-      ],
+      messages: messages,
       temperature: 1.0,
       top_p: 1.0,
       model: model,
